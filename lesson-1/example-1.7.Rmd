@@ -1,0 +1,57 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Using R
+
+We will use the R programming language to carry out the calculations that we would like to see.
+
+The lines of this program are saved in a simple text file with a .R file extension. If you have R and RStudio installed on the machine on which you have download this file, it should launch RStudio and open the code within the program.
+
+Download the R file: [nutrient2.R](nutrient2.R)
+
+First we will load the data into R as an object, which we will call `nutrient`.  Like the last example, we will assign the column and row names manually then remove the ID column.
+
+```{r}
+nutrient <- read.table("data/nutrient.txt")
+
+colnames(nutrient) <- c("ID", "Calcium", "Iron", "Protein", "A", "C")
+
+# Assign the unique IDs to the row names then remove the ID column
+rownames(nutrient) <- nutrient$ID
+nutrient <- nutrient[, -1]
+```
+
+We will again calculate the variance-covariance matrix, but this time we will save it as an object.
+
+```{r}
+nutrient_cov <- cov(nutrient)
+
+nutrient_cov
+```
+
+You should compare this output with the sample variance/covariance matrix output obtained in the last example. You will see that we have the exact same numbers that were presented before.
+
+The generalized variance can be calculated by taking the determinant of the variance-covariance matrix using the `det()` function. 
+
+```{r}
+det(nutrient_cov)
+```
+
+Here we see that the generalized variance is:
+
+$$|S| = 2.83 * 10^{19}$$
+
+In terms of interpreting the generalized variance, the larger the generalized variance the more dispersed the data are. Note that the volume of space occupied by the cloud of data points is going to be proportional to the square root of the generalized variance.
+
+In this example...
+
+$$\sqrt(|S|) = 5.37 * 10^9$$
+
+This represents a very large volume of space. Again, the interpretation of this particular number depends largely on subject matter knowledge. In this case, we can not say if this is a particularly large number or not unless we know more about women's nutrition.

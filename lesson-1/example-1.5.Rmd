@@ -1,0 +1,79 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Using R
+
+We will use the R programming language to carry out the calculations that we would like to see.
+
+The lines of this program are saved in a simple text file with a .R file extension. If you have R and RStudio installed on the machine on which you have download this file, it should launch RStudio and open the code within the program.
+
+Download the R file: [nutrient.R](nutrient.R)
+
+First we will load the data into R as an object, which we will call `nutrient`.  Because the variable names are not included in the text file, we will need to assign the column names manually by sending a list of strings to the `colnames()` function.  Then, we will get descriptive statistics for each variable using the `summary()` function.
+
+```{r}
+nutrient <- read.table("data/nutrient.txt")
+
+colnames(nutrient) <- c("ID", "Calcium", "Iron", "Protein", "A", "C")
+
+summary(nutrient)
+```
+
+The first column is the identification (ID) number that uniquely identifies each participant, so the descriptive statistics for that column are not of interest for us.  The following five columns give the minimums, maximums, means, medians, and 1st and 3rd quintiles for each variable.
+
+Since we are not interested in analyzing the unique IDs for the participants we can assign them to `rownames()` and remove the column so that they are not used in later analyses.
+
+```{r}
+# Assign the unique IDs to the row names then remove the ID column
+rownames(nutrient) <- nutrient$ID
+nutrient <- nutrient[, -1]
+```
+
+### Analysis
+
+To get the means for each variable we can use the `colMeans()` function.  A similar function does not exist to get the standard deviation of each variable.  Instead, we can use the `apply()` function to loop over the columns and calculate the standard deviation for each variable using the `sd()` function.
+
+```{r}
+colMeans(nutrient)
+
+apply(nutrient, 
+      2, # indicate that the function will be applied over columns
+      sd) # give the function to be applied without parenthesis
+```
+
+Notice that the standard deviations are large relative to their respective means, especially for Vitamins A & C. This would indicate a high variability among women in nutrient intake. However, whether the standard deviations are relatively large or not, will depend on the context of the application. Skill in interpreting the statistical analysis depends very much on the researcher's subject matter knowledge.
+
+Using the `cov()` function we can print out the variance-covariance matrix.
+
+```{r}
+cov(nutrient)
+```
+
+Because this covariance is positive, we see that calcium intake tends to increase with increasing iron intake. The strength of this positive association can only be judged by comparing $s_{12}$ to the product of the sample standard deviations for calcium and iron. This comparison is most readily accomplished by looking at the sample correlation between the two variables.
+
+- The sample variances are given by the diagonal elements of **S**. For example, the variance of iron intake is $s^2_{2}$ = 35.8 mg^2^.
+- The covariances are given by the off-diagonal elements of **S**. For example, the covariance between calcium and iron intake is $s_{12}$ = 940.1.
+- Note that, the covariances are all positive, indicating that the daily intake of each nutrient increases with increased intake of the remaining nutrients.
+
+Similarly, the `cor()` function will calculate the sample correlation matrix.
+
+```{r}
+cor(nutrient)
+```
+
+Here we can see that the correlation between each of the variables and themselves are all equal to one, and the off-diagonal elements give the correlation between each of the pairs of variables.
+
+Generally, we look for the strongest correlations first. The results above suggest that protein, iron, and calcium are all positively associated. Each of these three nutrients intake increases with increasing values of the remaining two.
+
+The **coefficient of determination** is another measure of association and is simply equal to the square of the correlation. For example, in this case, the coefficient of determination between protein and iron is (0.623)^2^ or about 0.388.
+
+$$r^2_{23} = 0.62337^2 = 0.38859$$
+
+This says that about 39% of the variation in iron intake is explained by protein intake. Or, conversely, 39% of the protein intake is explained by the variation in the iron intake. Both interpretations are equivalent.
