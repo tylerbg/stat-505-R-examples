@@ -1,0 +1,137 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+library(rgl)
+knitr::knit_hooks$set(webgl = hook_webgl)
+
+options(width=100)
+```
+
+# Graphical Methods
+
+Let us take a look again at the nutrition data. In 1985, the USDA commissioned a study of women’s nutrition. Nutrient intake was measured for a random sample of 737 women aged 25-50 years. The following variables were measured:
+
+Calcium(mg)
+Iron(mg)
+Protein(g)
+Vitamin A(μg)
+Vitamin C(mg)
+We can read the data from the SAS file below. Various transformed variables are also created at this step for inspection. Here are some different ways we could take a look at this data graphically using SAS (and Minitab).
+
+Download the SAS program: [nutrient3.R](src/nutrient3.R)
+
+First we will load the data into R as an object, which we will call `nutrient`.  Like the examples in Lesson 1, we will assign the column and row names manually then remove the ID column.
+
+```{r load-data}
+nutrient <- read.table("data/nutrient.txt")
+
+colnames(nutrient) <- c("ID", "Calcium", "Iron", "Protein", "A", "C")
+
+# Assign the unique IDs to the row names then remove the ID column
+rownames(nutrient) <- nutrient$ID
+nutrient <- nutrient[, -1]
+```
+
+### Univariate Cases
+
+Using Histograms we can:
+
+- Assess Normality
+- Find Normalizing Transformations
+- Detect Outliers
+
+```{r ca-histogram}
+hist(nutrient$Calcium)
+```
+
+Here, we have a histogram for daily intake of calcium. Note that the data appear to be skewed to the right, suggesting that calcium is not normally distributed. This suggests that a normalizing transformation should be considered.
+
+Common transformations include:
+
+- Square Root (often used with counts data)
+- Quarter Root
+- Log (either natural or base 10)
+
+The square root transformation is the weakest of the above transformations, while the log transformation is the strongest. In practice, it is generally a good idea to try all three transformations to see which appears to yield the most symmetric distribution.
+
+The following shows histograms for the raw data, square-root transformation, quarter-root transformation, and log transformation for the *Calcium* variable. With increasingly stronger transformations of the data, the distribution shifts from being skewed to the right to being skewed to the left. Here, the square-root transformed data is still slightly skewed to the right, suggesting that the square-root transformation is not strong enough. In contrast, the log-transformed data are skewed to the left, suggesting that the log transformation is too strong. The quarter-root transformation results in the most symmetric distribution, suggesting that this transformation is most appropriate for this data.
+
+```{r transformed-ca-histogram}
+par(mfrow = c(2, 2))
+hist(nutrient$Calcium)
+hist(sqrt(nutrient$Calcium))
+hist(I(nutrient$Calcium ^ (1/4)))
+hist(log(nutrient$Calcium))
+par(mfrow = c(1, 1))
+```
+
+In practice, histograms should be plotted for each of the variables, and transformations should be applied as needed. There is no 'best' transformation for all datasets.
+
+### Bivariate Cases
+
+Using Scatter Plots we can:
+
+- Describe relationships between pairs of variables
+- Assess linearity
+- Find Linearizing Transformations
+- Detect Outliers
+
+Here, we will produce a scatterplot in which calcium is plotted against iron.
+
+```{r ca-fe-scatterplot}
+plot(nutrient$Iron,
+     nutrient$Calcium)
+```
+
+This plot suggests that daily intake of calcium tends to increase with the increasing daily intake of iron. If the data have a bivariate normal distribution, then the scatterplot should be approximately elliptical in shape. However, the points appear to fan out from the origin, suggesting that the data are not bivariate normal.
+
+```{r transformed-ca-fe-scatterplot}
+plot(I(nutrient$Iron ^ (1/4)),
+     I(nutrient$Calcium ^ (1/4)))
+```
+
+After applying quarter-root transformations to both calcium and iron, we obtain a scatter of points that appear to be more elliptical in shape. Moreover, it appears that the relationship between the transformed variables is approximately linear. The point in the lower left-hand corner appears to be an unusual observation or outlier. Upon closer examination, it was found that this woman reported zero daily intake of iron. Since this is very unlikely to be correct, we might justifiably remove this observation from the data set.
+
+### Trivariate Cases
+
+#### Using rotating scatter plots in R
+
+The `rgl` package provides the `plot3d()` function which can draw a 3-dimensional scatterplot.
+
+*Note that you will need to install the `rgl` library with `install.packages()` before it can be loaded*
+
+```{r ca-fe-protein-3d-scatterplot, webgl=TRUE}
+library(rgl)
+
+plot3d(nutrient$Calcium,
+       nutrient$Iron,
+       nutrient$Protein)
+```
+
+By rotating a 3-dimensional scatterplot, the illusion of three dimensions can be achieved. Here, we are looking to see if the cloud of points is approximately elliptical in shape.
+
+### Multivariate Cases
+
+Using a Matrix of Scatter Plots we can:
+
+- Look at all of the relationships between pairs of variables in one group of plots
+- Describe relationships among three or more variables
+
+To generate a matrix of scatterplots in R we can simply wrap our data set with the `plot()` function.  We will also use a quarter-root transformation on the data before plotting.
+
+*Note that the `I()` function is not necessary to perform data transformations, however it is good practice to use so that the data class is never changed when doing so.*
+
+```{r scatterplot-matrix}
+plot(I(nutrient ^ (1/4)))
+```
+
+Here, we have a matrix of scatterplots for quarter-root transformed data on all variables. Note that each variable appears to be positively related to the remaining variables. However, the strength of that relationship depends on which pair of variables is considered. For example, quarter-root iron is strongly related to quarter-root protein, but the relationship between calcium and vitamin C is not very strong.
