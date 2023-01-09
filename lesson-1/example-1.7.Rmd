@@ -14,7 +14,7 @@ We will use the R programming language to carry out the calculations that we wou
 
 The lines of this program are saved in a simple text file with a .R file extension. If you have R and RStudio installed on the machine on which you have download this file, it should launch RStudio and open the code within the program.
 
-Download the R file: [nutrient2.R](nutrient2.R)
+Download the R file: [nutrient2.R](src/nutrient2.R)
 
 First we will load the data into R as an object, which we will call `nutrient`.  Like the last example, we will assign the column and row names manually then remove the ID column.
 

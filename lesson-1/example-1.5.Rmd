@@ -14,7 +14,7 @@ We will use the R programming language to carry out the calculations that we wou
 
 The lines of this program are saved in a simple text file with a .R file extension. If you have R and RStudio installed on the machine on which you have download this file, it should launch RStudio and open the code within the program.
 
-Download the R file: [nutrient.R](nutrient.R)
+Download the R file: [nutrient.R](src/nutrient.R)
 
 First we will load the data into R as an object, which we will call `nutrient`.  Because the variable names are not included in the text file, we will need to assign the column names manually by sending a list of strings to the `colnames()` function.  Then, we will get descriptive statistics for each variable using the `summary()` function.
 
