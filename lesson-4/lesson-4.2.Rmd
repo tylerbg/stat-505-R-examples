@@ -19,59 +19,41 @@ We will produce three bivariate normal distribution curves using R.  It would be
 
 Download the Normal plot R file here: [normplot.R](src/normplot.R)
 
-To simulate multivariate distributions we can call the `mvrnorm()` function from the `MASS` package.  In this function we need to pass a correlation matrix, which for a bivariate distribution takes the form of a 2 x 2 matrix.  In R, we will first assign our desired correlation coefficient, &rho;, to an object, use it to create a correlation matrix, then simulate two normally distributed variables.  We will then use the `kde2d()` and `persp()` functions, also included in the `MASS` package, to estimate the bivariate densities and plot them.
+To simulate multivariate distributions we will create a function that calls other functions from the `MASS` package.  Our function will require an argument for &rho;, `rho`, which will be used to create a bivariate (2 x 2) correlation matrix.  From the correlation matrix two new variables will be simulated using the `mvnorm()` function and their density distributions estimated and plotted with the `kde2d()` and `persp()` functions, respectively.  Our function will also print the correlation coefficient for the two simulated variables.
 
-We will start with two variabled that have &rho; = 0.
+We will start with two variables with &rho; = 0.
 
 ```{r bivariate-density-no-correl}
 library(MASS)
 
-rho <- 0
+biv_dist <- function(rho) {
+  rho <- rho
+  
+  Sigma <- rbind(c(1, rho),
+                 c(rho, 1))
+  
+  set.seed(4960)
+  xy <- as.data.frame(mvrnorm(1e5, c(1, 1), Sigma))
+  
+  den3d <- kde2d(xy$V1, xy$V2, n = 30)
+  persp(den3d, box=FALSE)
+  
+  print(cor(xy$V1, xy$V2))
+}
 
-Sigma <- rbind(c(1, rho),
-               c(rho, 1))
-
-set.seed(4960)
-xy <- as.data.frame(mvrnorm(1e5, c(1, 1), Sigma))
-
-den3d <- kde2d(xy$V1, xy$V2, n = 30)
-persp(den3d, box=FALSE)
-
-cor(xy$V1, xy$V2)
+biv_dist(0)
 ```
 
 The first plot shows the case where the correlation, &rho;, is equal to zero. This special case is called the circular normal distribution. Here, we have a perfectly symmetric bell-shaped curve in three dimensions.
 
 ```{r bivariate-density-correl}
-rho <- 0.7
-
-Sigma <- rbind(c(1, rho),
-               c(rho, 1))
-
-set.seed(4960)
-xy <- as.data.frame(mvrnorm(1e5, c(1, 1), Sigma))
-
-den3d <- kde2d(xy$V1, xy$V2, n = 30)
-persp(den3d, box=FALSE)
-
-cor(xy$V1, xy$V2)
+biv_dist(0.7)
 ```
 
 As &rho; increases that bell-shaped curve becomes flattened on the 45-degree line. So for &rho; equals 0.7 we can see that the curve extends out and becomes flattened in the perpendicular direction.
 
 ```{r bivariate-density-strong-correl}
-rho <- 0.9
-
-Sigma <- rbind(c(1, rho),
-               c(rho, 1))
-
-set.seed(4960)
-xy <- as.data.frame(mvrnorm(1e5, c(1, 1), Sigma))
-
-den3d <- kde2d(xy$V1, xy$V2, n = 30)
-persp(den3d, box=FALSE)
-
-cor(xy$V1, xy$V2)
+biv_dist(0.9)
 ```
 
 Increasing &rho; to 0.9 the curve becomes broader and the 45-degree line and even flatter still in the perpendicular direction.
