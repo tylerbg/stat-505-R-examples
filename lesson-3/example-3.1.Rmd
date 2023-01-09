@@ -20,14 +20,15 @@ options(width=100)
 
 Let us take a look again at the nutrition data. In 1985, the USDA commissioned a study of women’s nutrition. Nutrient intake was measured for a random sample of 737 women aged 25-50 years. The following variables were measured:
 
-Calcium(mg)
-Iron(mg)
-Protein(g)
-Vitamin A(μg)
-Vitamin C(mg)
-We can read the data from the SAS file below. Various transformed variables are also created at this step for inspection. Here are some different ways we could take a look at this data graphically using SAS (and Minitab).
+- Calcium (mg)
+- Iron (mg)
+- Protein (g)
+- Vitamin A (μg)
+- Vitamin C (mg)
 
-Download the SAS program: [nutrient3.R](src/nutrient3.R)
+We can read the data from the R file below.
+
+Download the R file: [nutrient3.R](src/nutrient3.R)
 
 First we will load the data into R as an object, which we will call `nutrient`.  Like the examples in Lesson 1, we will assign the column and row names manually then remove the ID column.
 
@@ -65,7 +66,7 @@ The square root transformation is the weakest of the above transformations, whil
 
 The following shows histograms for the raw data, square-root transformation, quarter-root transformation, and log transformation for the *Calcium* variable. With increasingly stronger transformations of the data, the distribution shifts from being skewed to the right to being skewed to the left. Here, the square-root transformed data is still slightly skewed to the right, suggesting that the square-root transformation is not strong enough. In contrast, the log-transformed data are skewed to the left, suggesting that the log transformation is too strong. The quarter-root transformation results in the most symmetric distribution, suggesting that this transformation is most appropriate for this data.
 
-```{r transformed-ca-histogram}
+```{r transformed-ca-histogram, fig.height=8}
 par(mfrow = c(2, 2))
 hist(nutrient$Calcium)
 hist(sqrt(nutrient$Calcium))
