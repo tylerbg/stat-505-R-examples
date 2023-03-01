@@ -1,0 +1,33 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+options(width=100)
+```
+
+```{r}
+wechsler <- read.table("data/wechsler.txt")
+wechsler <- wechsler[, -1]
+colnames(wechsler) <- c("Info", "Sim", "Arith", "Pic")
+```
+
+```{r}
+wechsler_cov <- cov(wechsler)
+wechsler_cov
+diag(wechsler_cov)
+sum(diag(wechsler_cov))
+wechsler_cor <- cor(wechsler)
+wechsler_cor
+wechsler_eg <- eigen(wechsler_cov)
+wechsler_eg$values
+wechsler_eg$vectors
+```
+

@@ -1,0 +1,21 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+options(width=100)
+```
+
+```{r}
+```
+
+```{r}
+```
+

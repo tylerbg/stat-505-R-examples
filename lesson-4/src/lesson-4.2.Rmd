@@ -27,8 +27,6 @@ We will start with two variables with &rho; = 0.
 library(MASS)
 
 biv_dist <- function(rho) {
-  rho <- rho
-  
   Sigma <- rbind(c(1, rho),
                  c(rho, 1))
   

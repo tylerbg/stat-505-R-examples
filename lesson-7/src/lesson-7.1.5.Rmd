@@ -1,0 +1,59 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+options(width=100)
+```
+
+```{r}
+nutrient <- read.table("data/nutrient.txt")
+
+colnames(nutrient) <- c("ID", "Calcium", "Iron", "Protein", "A", "C")
+
+# Assign the unique IDs to the row names then remove the ID column
+rownames(nutrient) <- nutrient$ID
+nutrient <- nutrient[, -1]
+```
+
+```{r}
+hyp_means <- c(1000, 15, 60, 800, 75)
+
+nutrient_std <- sweep(nutrient, 2, hyp_means, FUN = "/")
+
+n <- nrow(nutrient)
+p <- ncol(nutrient)
+means <- colMeans(nutrient_std)
+s <- apply(nutrient_std, 2, sd)
+
+F_val <- qf(0.95, p, n - p)
+t <- qt(1 - (0.05 / (2 * p)), n - 1)
+
+mult_simul <- sqrt((p * (n - 1) / (n - p)) * F_val) * s / sqrt(n)
+mult_bonf <- t * s / sqrt(n)
+
+lower_ci_simul <- means - mult_simul
+upper_ci_simul <- means + mult_simul
+
+data.frame(lower_ci_simul, upper_ci_simul)
+
+lower_ci_bonf <- means - mult_bonf
+upper_ci_bonf <- means + mult_bonf
+
+data.frame(lower_ci_bonf, upper_ci_bonf)
+```
+
+```{r}
+plot(means, ylim = c(0.5, 1.4), pch = 3)
+abline(h = 1, lty = 2)
+arrows(x0 = 1:5, y0 = means, x1 = 1:5, y1 = lower_ci_simul, angle = 90, length = 0.1)
+arrows(x0 = 1:5, y0 = means, x1 = 1:5, y1 = upper_ci_simul, angle = 90, length = 0.1)
+```
+

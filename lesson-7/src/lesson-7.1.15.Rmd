@@ -1,0 +1,48 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+options(width=100)
+```
+
+```{r}
+swiss <- read.table("data/swiss3.txt")
+
+colnames(swiss) <- c("Type", "Length", "Left Width", "Right Width", "Bottom Margin", "Top Margin", "Diagonal")
+```
+
+
+```{r}
+real_swiss <- swiss[swiss$Type == "real", 2:7]
+fake_swiss <- swiss[swiss$Type == "fake", 2:7]
+real_means <- colMeans(real_swiss)
+fake_means <- colMeans(fake_swiss)
+
+real_cov <- cov(real_swiss)
+fake_cov <- cov(fake_swiss)
+
+real_n <- nrow(real_swiss)
+fake_n <- nrow(fake_swiss)
+
+pooled_cov <- ((real_n - 1) * real_cov + (fake_n - 1) * fake_cov) / (real_n + fake_n - 2)
+
+diff_means <- colMeans(real_swiss) - colMeans(fake_swiss)
+pooled_cov_inv <- solve(pooled_cov * (1 / real_n + 1 / fake_n))
+n <- nrow(swiss)
+
+T_2 <- t(diff_means) %*% pooled_cov_inv %*% diff_means
+
+T_2
+
+p <- ncol(swiss) - 1
+(real_n + fake_n - p - 1) / (p * (real_n + fake_n - 2)) * T_2
+```
+

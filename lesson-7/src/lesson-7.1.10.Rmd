@@ -1,0 +1,54 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE, message = FALSE,
+                      fig.path="figures/",
+                      fig.width=8, fig.height=6,
+                      fig.show='hold', fig.align='center')
+
+options(width=100)
+```
+
+```{r}
+spouse <- read.table("data/spouse.txt")
+
+colnames(spouse) <- c(paste0("husband_", 1:4), paste0("wife_", 1:4))
+```
+
+```{r}
+diffs <- spouse[, 1:4] - spouse[, 5:8]
+diff_means <- colMeans(diffs)
+
+n <- nrow(diffs)
+p <- ncol(diffs)
+s <- apply(diffs, 2, sd)
+
+F_val <- qf(0.95, p, n - p)
+t <- qt(1 - (0.05 / (2 * p)), n - 1)
+
+mult_simul <- sqrt((p * (n - 1) / (n - p)) * F_val) * s / sqrt(n)
+mult_bonf <- t * s / sqrt(n)
+
+lower_ci_simul <- diff_means - mult_simul
+upper_ci_simul <- diff_means + mult_simul
+
+data.frame(lower_ci_simul, upper_ci_simul)
+
+lower_ci_bonf <- diff_means - mult_bonf
+upper_ci_bonf <- diff_means + mult_bonf
+
+data.frame(lower_ci_bonf, upper_ci_bonf)
+```
+
+```{r}
+plot(diff_means, ylim = c(-0.8, 0.8), pch = 3)
+abline(h = 0, lty = 2)
+arrows(x0 = 1:4, y0 = diff_means, x1 = 1:4, y1 = lower_ci_simul, angle = 90, length = 0.1)
+arrows(x0 = 1:4, y0 = diff_means, x1 = 1:4, y1 = upper_ci_simul, angle = 90, length = 0.1)
+```
+
+
